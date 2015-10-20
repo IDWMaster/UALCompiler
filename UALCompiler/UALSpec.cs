@@ -37,26 +37,77 @@ namespace UALCompiler
 	}
 
 	public class UALMethod:UALSerializable {
+		//Table of all imports
+		static Dictionary<string,int> MethodTable = new Dictionary<string, int>();
+		static int currentMethodPointer = 0; 
+		static int GetMethodPointer(string signature) {
+			if (MethodTable.ContainsKey (signature)) {
+				return MethodTable [signature];
+			}
+			currentMethodPointer++;
+			MethodTable [signature] = currentMethodPointer-1;
+			return currentMethodPointer - 1;
+		}
+
+
 		MethodDefinition info;
+
 		public UALMethod(MethodDefinition info) {
 			this.info = info;
 		}
 		public override byte[] Serialize ()
 		{
+			Console.WriteLine ("Entering " + info.FullName);
 			MemoryStream mstream = new MemoryStream ();
 			BinaryWriter mwriter = new BinaryWriter (mstream);
+			if (info.HasPInvokeInfo) {
+				mwriter.Write (false); //Native method invocation
+				return mstream.ToArray ();
+			}
+			mwriter.Write (true); //Is .NET method?
+
+
 			//Body of method
 			var body = info.Body;
 			//IL code for method
 			var instructions = body.Instructions;
+
+
 			mwriter.Write (instructions.Count);
 			foreach (var et in instructions) {
-				if (et.OpCode.Code == Mono.Cecil.Cil.Code.Ldarg) {
+				if ((int)et.OpCode.Code >= (int)Mono.Cecil.Cil.Code.Ldarg_0 && ((int)et.OpCode.Code <= (int)Mono.Cecil.Cil.Code.Ldarg_3)) {
 					//TODO: Load arguement
-					throw new NotImplementedException ("TODO: Load argument instruction");
+					int argnum = (int)Mono.Cecil.Cil.Code.Ldarg_0-(int)et.OpCode.Code;
+					mwriter.Write ((byte)0); //Load argument
+					mwriter.Write (argnum); //Argument number
+				} else {
+					if (et.OpCode.Code == Mono.Cecil.Cil.Code.Call) {
+						var method = et.Operand as MemberReference; //Method to invoke
+						mwriter.Write ((byte)1);
+						mwriter.Write (GetMethodPointer (method.FullName));
 
+					} else {
+						if (et.OpCode.Code == Mono.Cecil.Cil.Code.Ldstr) {
+							mwriter.Write ((byte)2);
+							mwriter.WriteString (et.Operand as string);
+
+
+						} else {
+							if (et.OpCode.Code == Mono.Cecil.Cil.Code.Nop) {
+								//TODO: Nothing.
+							} else {
+								if (et.OpCode.Code == Mono.Cecil.Cil.Code.Ret) {
+									//Return from function call
+									mwriter.Write ((byte)3);
+								} else {
+									Console.WriteLine ("Not implemented: " + et.OpCode);
+								}
+							}
+						}
+					}
 				}
 			}
+			return mstream.ToArray ();
 		}
 
 	}
@@ -80,7 +131,10 @@ namespace UALCompiler
 			foreach (var et in t.Methods) {
 				//Name of method
 				mwriter.WriteString (et.Name);
-				mwriter.Write (new UALMethod (et).Serialize ());
+				byte[] data = new UALMethod (et).Serialize();
+				mwriter.Write (data.Length);
+				mwriter.Write (data);
+
 
 			}
 			return mstream.ToArray ();

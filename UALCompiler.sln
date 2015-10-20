@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UALCompiler", "UALCompiler\UALCompiler.csproj", "{27F114D9-65F5-4136-B075-4335CDD6EA2F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UALTestProgram", "UALTestProgram\UALTestProgram.csproj", "{D10BF7E0-E914-4E8C-8852-83E5DC30912E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +15,10 @@ Global
 		{27F114D9-65F5-4136-B075-4335CDD6EA2F}.Debug|x86.Build.0 = Debug|x86
 		{27F114D9-65F5-4136-B075-4335CDD6EA2F}.Release|x86.ActiveCfg = Release|x86
 		{27F114D9-65F5-4136-B075-4335CDD6EA2F}.Release|x86.Build.0 = Release|x86
+		{D10BF7E0-E914-4E8C-8852-83E5DC30912E}.Debug|x86.ActiveCfg = Debug|x86
+		{D10BF7E0-E914-4E8C-8852-83E5DC30912E}.Debug|x86.Build.0 = Debug|x86
+		{D10BF7E0-E914-4E8C-8852-83E5DC30912E}.Release|x86.ActiveCfg = Release|x86
+		{D10BF7E0-E914-4E8C-8852-83E5DC30912E}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = UALCompiler\UALCompiler.csproj
