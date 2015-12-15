@@ -76,6 +76,8 @@ namespace UALCompiler
 			 * 8 -- Add
 			 * 9 -- Branch on <= (ble!!!)
 			 * 10 -- NOPE! You're not gonna do anything here!
+			 * 11 -- Branch on equal
+			 * 12 -- Branch on not equal
 			 * 255 -- End of code segment
 			 * */
 
@@ -179,6 +181,16 @@ namespace UALCompiler
 					break;
 				case Code.Ble:
 					emitInstruction (et, 9);
+					pendingLocations.Add (new Tuple<int, long> ((et.Operand as Instruction).Offset, mstream.Position));
+					mwriter.Write ((int)0);
+					break;
+				case Code.Beq:
+					emitInstruction (et, 11);
+					pendingLocations.Add (new Tuple<int, long> ((et.Operand as Instruction).Offset, mstream.Position));
+					mwriter.Write ((int)0);
+					break;
+				case Code.Bne_Un:
+					emitInstruction (et, 12);
 					pendingLocations.Add (new Tuple<int, long> ((et.Operand as Instruction).Offset, mstream.Position));
 					mwriter.Write ((int)0);
 					break;
