@@ -13,10 +13,9 @@ namespace UALTestProgram
 
 		public static void Main (string[] args)
 		{
-			ConsoleOut ("Hello World!\n");
+			//ConsoleOut ("Hello World!\n");
 
-
-			for (int i = 0; i<=10; i++) {
+			for (int i = 0; i != 10; i++) {
 				PrintInt (i);
 				ConsoleOut ("\n");
 			}

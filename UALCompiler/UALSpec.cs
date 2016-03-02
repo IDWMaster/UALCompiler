@@ -97,6 +97,10 @@ namespace UALCompiler
 
 			mwriter.Write (body.Variables.Count);
 
+			foreach (var et in body.Variables) {
+				mwriter.WriteString (et.VariableType.FullName);
+			}
+
 			//IL code for method
 			var instructions = body.Instructions;
 
