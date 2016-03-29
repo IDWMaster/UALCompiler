@@ -78,13 +78,27 @@ namespace UALCompiler
 			 * 10 -- NOPE! You're not gonna do anything here!
 			 * 11 -- Branch on equal
 			 * 12 -- Branch on not equal
+			 * 13 -- Branch on greater than
+			 * 14 -- Branch on greater than or equal to
+			 * 15 -- Subtract
+			 * 16 -- Multiply
+			 * 17 -- Divide
+			 * 18 -- Remainder
+			 * 19 -- Shift Democrat
+			 * 20 -- Shift Republican
+			 * 21 -- And
+			 * 22 -- Or
+			 * 23 -- Xor
+			 * 24 -- NOT
+			 * 25 -- Load immediate ON THE DOUBLE!
+			 * 26 -- Load buffer immediate
 			 * 255 -- End of code segment
 			 * */
 
 			Console.WriteLine ("Entering " + info.FullName);
 			MemoryStream mstream = new MemoryStream ();
 			BinaryWriter mwriter = new BinaryWriter (mstream);
-			if (info.HasPInvokeInfo) {
+			if (info.Body.Instructions.Count == 0 || info.IsConstructor) { //TODO: Constructor support (maybe?)
 				mwriter.Write (false); //Native method invocation
 				return mstream.ToArray ();
 			}
@@ -140,10 +154,20 @@ namespace UALCompiler
 					mwriter.Write (lval);
 					continue;
 				}
+				if (et.OpCode.Code == Code.Stloc_S) {
+					emitInstruction (et, (byte)5);
+					mwriter.Write ((et.Operand as VariableReference).Index);
+					continue;
+				}
 				if ((int)et.OpCode.Code >= (int)Code.Ldloc_0 && (int)et.OpCode.Code <= (int)Code.Ldloc_3) {
 					int lval = 3 - ((int)Code.Ldloc_3 - (int)et.OpCode.Code);
 					emitInstruction (et,(byte)7);
 					mwriter.Write (lval);
+					continue;
+				}
+				if (et.OpCode.Code == Code.Ldloc_S) {
+					emitInstruction (et, (byte)7);
+					mwriter.Write ((et.Operand as VariableReference).Index);
 					continue;
 				}
 					switch (et.OpCode.Code) {
@@ -198,10 +222,61 @@ namespace UALCompiler
 					pendingLocations.Add (new Tuple<int, long> ((et.Operand as Instruction).Offset, mstream.Position));
 					mwriter.Write ((int)0);
 					break;
+				case Code.Bgt:
+					emitInstruction (et, 13);
+					pendingLocations.Add (new Tuple<int, long> ((et.Operand as Instruction).Offset, mstream.Position));
+					mwriter.Write ((int)0);
+					break;
+				case Code.Bge:
+					emitInstruction (et, 14);
+					pendingLocations.Add (new Tuple<int, long> ((et.Operand as Instruction).Offset, mstream.Position));
+					mwriter.Write ((int)0);
+					break;
+				case Code.Sub:
+					emitInstruction (et, 15);
+					break;
+				case Code.Mul:
+					emitInstruction (et, 16);
+					break;
+				case Code.Div:
+					emitInstruction (et, 17);
+					break;
+				case Code.Rem:
+					emitInstruction (et, 18);
+					break;
+
+					//Binary instructions
+
+				case Code.Shl:
+					emitInstruction (et, 19);
+					break;
+				case Code.Shr:
+					emitInstruction (et, 20);
+					break;
+				case Code.And:
+					emitInstruction (et, 21);
+					break;
+				case Code.Or:
+					emitInstruction (et, 22);
+					break;
+				case Code.Xor:
+					emitInstruction (et,23);
+					break;
+				case Code.Not:
+					emitInstruction (et, 24);
+					break;
+				case Code.Ldc_R8:
+					emitInstruction (et, 25);
+					mwriter.Write ((double)et.Operand);
+					break;
+
 					default:
 						Console.WriteLine ("Unknown OPCODE: " + et.OpCode);
 						break;
 					}
+
+
+
 
 			}
 			mwriter.Write ((byte)255);
