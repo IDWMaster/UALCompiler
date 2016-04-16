@@ -21,7 +21,6 @@ namespace UALCompiler
 					Console.WriteLine ("Usage: UALCompiler file [options]");
 					Console.WriteLine ("Options: ");
 					Console.WriteLine ("\t--help\t\t\tGets help for this program");
-					Console.WriteLine ("\t--output filename\tSpecifies output assembly file");
 				} else {
 					//Read args[0] as input file
 					string inputFile = args [0];
